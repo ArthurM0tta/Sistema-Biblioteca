@@ -1,0 +1,141 @@
+import sqlite3
+from datetime import datetime
+desejo = 0
+
+
+while True:
+    print('\nBem-vindo ao programa de gestão de biblioteca!')
+    # perguntar o que deseja fazer como parametro para o if
+    desejo = input('''\nEscolha uma das opções abaixo:
+
+Digite C para criar um cadastro
+M para mudar um cadastro
+P para pesquisar um cadastro
+E para exibir a tabela de livros disponíveis
+A para alugar um livro
+D para devolver um livro
+R para remover um cadastro
+S para sair
+
+
+
+O que você deseja fazer: ''')
+
+
+    # Conectar ao banco de dados (se não existir, será criado)
+    conn = sqlite3.connect('Bibliteca.db')
+
+#-------------------------------------------------------------------------------------
+
+    # Criar um cursor para interagir com o banco de dados
+    cursor = conn.cursor()
+
+    # if para criação de cadastro
+    if desejo.upper() == 'C':
+        while True:
+
+            print('\nVocê escolheu a criação de cadastro, Insira os dados solicitados abaixo')
+            nome = input('\nInsira o nome: ')
+            nascimento = input('\nInsira a data de nascimento (separada pelo sinal - Ex: Dia-Mes-Ano): ')
+            sexo = input('\nInsira M para masculino, F para feminino: ')
+            #livro_alugado = input('\nInsira o nome do livro a ser alugado: ')
+            
+            sexo = sexo.upper()
+            
+            if sexo != 'M' and sexo != 'F':
+                print('Comando não encontrado...')
+            else:
+                print('\nCadastro criado!')
+                # Converter a data para o formato 'yyyy-mm-dd' para o SQLite
+                data_formatada = datetime.strptime(nascimento, '%d-%m-%Y').strftime('%Y-%m-%d')
+                # Executar uma consulta SQL para inserir uma variável no banco de dados
+                consulta_insercao = "INSERT INTO cadastro (nome, nascimento, sexo) VALUES (?, ?, ?)"
+                dados_para_inserir = (nome, data_formatada, sexo)
+
+                # Executar a consulta
+                cursor.execute(consulta_insercao, dados_para_inserir)
+
+                # Confirmar a transação
+                conn.commit()
+                break
+
+#-------------------------------------------------------------------------------------
+
+    elif desejo.upper() == 'M':
+        while True:
+            print('\nVocê escolheu Mudar/alterar um cadastro, Insira quais dados você deseja alterar')
+            alter = input('''\nDigite N para alterar o nome
+D para alterar a data de nascimento
+L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
+            # Converter a entrada para minúsculas
+            alter = alter.upper()
+
+            if len(alter) != 1 or alter not in ['N', 'D', 'S', 'L']:
+                print('Comando não encontrado...')
+            else:
+                print('tudo certo')
+                break
+
+#-------------------------------------------------------------------------------------
+
+    # if para pesquisar um cadastro
+    elif desejo.upper() == 'P':
+        # receber o Id
+        id = int(input('\nVocê escolheu pesquisar um cadastro, Insira o ID cadastrado: '))
+
+        # Executar uma consulta SQL para obter um dado do banco de dados
+        consulta_sql = "SELECT * FROM cadastro WHERE id = ?"
+        cursor.execute(consulta_sql, (id,))
+
+        dado_do_banco = cursor.fetchone()
+
+        # Usar o dado do banco de dados em uma instrução if
+        if dado_do_banco:
+            # Faça algo se o dado existir no banco de dados
+            id, nome, nascimento, sexo, livro = dado_do_banco
+
+            # Formatar a data de nascimento
+            data_formatada = datetime.strptime(nascimento, "%Y-%m-%d").strftime("%d/%m/%Y")
+
+            # Faça algo se o dado existir no banco de dados
+            print("\nDados encontrados:")
+            print("ID:", id)
+            print("Nome:", nome)
+            print("Data de nascimento:", data_formatada)
+            print("Sexo:", sexo)
+            print("Livro Alugado:", livro)
+        
+        else:
+            # Faça algo se o dado não existir no banco de dados
+            print("\nID não encontrado")
+            
+
+        # Fechar a conexão
+        conn.close()
+
+#-------------------------------------------------------------------------------------
+
+    # if para Remover um cadastro
+    elif desejo.upper() == 'R':
+        conf = input('Você escolheu a remoção de cadastro, deseja prosseguir? (S para Sim e N para Não) ')
+        if conf.upper() == 'S':
+            print('Ok para prosseguir insira o ID do cadastro a ser removido: ')
+        else:
+            print('\nOK! Retornando para o menu de escolha!')
+
+#-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+
+    elif desejo.upper() == 'S':
+        print('\nVolte sempre!\n')
+        break
+
+#-------------------------------------------------------------------------------------
+
+    else:
+        print('\nComando não encontrado...\n')
+        print('Digite um comando valido!')
