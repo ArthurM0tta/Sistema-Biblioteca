@@ -36,7 +36,7 @@ P para pesquisar um cadastro
 E para exibir a tabela de livros disponíveis
 A para alugar um livro
 D para devolver um livro
-R para remover um cadastro
+R para remover um cadastroa
 S para sair
 
 
