@@ -135,15 +135,56 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print('\nOK! Retornando para o menu de escolha!')
 
 #------------------------------------------------------------------------------------------------------
+#Cria parte para que não deixe a pessoa alugar outro livro
+class Cliente:
+    def __init__(self, nome):
+        self.nome = nome
+        self.livros_alugados = [1]
 
+class Livraria:
+    def __init__(self):
+        self.livros = []
 
+    def add_livro(self, livro):
+        self.livros.append(livro)
 
+    def alugar_livro(self, cliente, livro_titulo):
+        if len(cliente.livros_alugados) < 2:
+            for livro in self.livros:
+                if livro.titulo == livro_titulo and livro not in cliente.livros_alugados:
+                    cliente.livros_alugados.append(livro)
+                    return f"Livro {livro_titulo} alugado com sucesso."
+            return "Aluguel não permitido. Verifique a disponibilidade do livro."
+        else:
+            return "Aluguel não permitido. Limite de 1 livros alugados por vez atingido."
+
+#---------------------------------------------------------------------------------------
+ #Atraso 5 dias 
+
+from datetime import datetime, timedelta
+
+def calcular_atraso(fecha_actual, fecha_limite):
+    return (fecha_limite - fecha_actual).days
+
+def verificar_atraso(atraso):
+    if atraso <= 5:
+        return "Estás dentro do prazo.pode entregar o produto sem problemas."
+    else:
+        return "Esta fora do prazo. Deve entregar produdos em 5 dias."
+
+fecha_actual = datetime.now(30)
+fecha_limite = fecha_actual + timedelta(days=10)
+
+atraso = calcular_atraso(fecha_actual, fecha_limite)
+
+mensaje = verificar_atraso(atraso)
+print(mensaje)
 
 #------------------------------------------------------------------------------------------------------
     # if para Encerrar programa
     elif desejo.upper() == 'S':
         print('\nVolte sempre!\n')
-        break
+    break
 
 #------------------------------------------------------------------------------------------------------
 
