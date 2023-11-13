@@ -130,8 +130,8 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 #------------------------------------------------------------------------------------------------------
 # if para exibir a tabela de livros
     elif desejo.upper() == 'E':
-        while True:
 
+            print('\nLIVROS DISPONÍVEIS ABAIXO:\n')
             # Selecionar todos os registros da tabela "livros"
             cursor.execute('SELECT * FROM livros')
 
@@ -149,14 +149,11 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
                     try:
                         data_formatada = datetime.strptime(livro[4], '%Y-%m-%d').strftime('%d/%m/%Y')
                     except ValueError:
-                        data_formatada = 'Data Indisponível'
+                        data_formatada = 'Data Desconhecida'
                 tabela.add_row([livro[0], livro[2], livro[3], data_formatada, livro[5]])
 
             # Exibir a tabela formatada
             print(tabela)
-            # Faça algo se o dado não existir no banco de dados
-            print("\ncpf não encontrado")
-
             # Fechar a conexão
             conn.close()
 
