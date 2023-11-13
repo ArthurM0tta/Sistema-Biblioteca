@@ -77,7 +77,6 @@ O que você deseja fazer: ''')
         consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
         cursor.execute(consulta_verificacao, (cpf_alterar,))
         dado_do_banco = cursor.fetchone()
-       
         if dado_do_banco:
             print(dado_do_banco)
             cpf, nome, nascimento, telefone, email, data, livro_alugado = dado_do_banco
@@ -152,14 +151,14 @@ O que você deseja fazer: ''')
 #------------------------------------------------------------------------------------------------------
     # if para Remover um cadastro
     elif desejo.upper() == 'R':
-      cpf_remover = input('Você escolheu a remoção de cadastro, insira o CPF a ser removido: ')
+        cpf_remover = input('Você escolheu a remoção de cadastro, insira o CPF a ser removido: ')
 
     # Executar uma consulta SQL para verificar se o CPF existe no banco de dados
-      consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
-      cursor.execute(consulta_verificacao, (cpf_remover,))
-      dado_do_banco = cursor.fetchone()
+        consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
+        cursor.execute(consulta_verificacao, (cpf_remover,))
+        dado_do_banco = cursor.fetchone()
 
-      if dado_do_banco:
+        if dado_do_banco:
             cpf, nome, nascimento, telefone, email, _, _ = dado_do_banco
             print("Dados encontrados:")
             print("CPF:", cpf)
@@ -177,8 +176,8 @@ O que você deseja fazer: ''')
                 print(f"Cadastro com CPF {cpf_remover} removido com sucesso.")
             else:
                 print('Remoção cancelada.')
-      else:
-        print(f"CPF {cpf_remover} não encontrado no banco de dados.")
+        else:
+            print(f"CPF {cpf_remover} não encontrado no banco de dados.")
 #------------------------------------------------------------------------------------------------------
 
 
@@ -193,5 +192,5 @@ O que você deseja fazer: ''')
 #------------------------------------------------------------------------------------------------------
 
     else:
-       print('\nComando não encontrado...\n')
-       print('Digite um comando valido!')
+        print('\nComando não encontrado...\n')
+        print('Digite um comando valido!')
