@@ -4,10 +4,32 @@ desejo = 0
 
 # Conectar ao banco de dados (se não existir, será criado)
 conn = sqlite3.connect('Biblioteca.db')
+
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
 
-# Função para validar o formato da data
+sql_create_table = '''
+CREATE TABLE IF NOT EXISTS livros (
+    idLivro INTEGER PRIMARY KEY AUTOINCREMENT,
+    genero VARCHAR (),
+    titulo TEXT NOT NULL,
+    autor TEXT,
+    data_publicacao DATE,
+    descricao TEXT
+);
+'''
+
+# Executar o comando SQL
+cursor.execute(sql_create_table)
+
+# Commit para salvar as alterações no banco de dados
+conn.commit()
+
+# Fechar a conexão
+conn.close()
+
+
+"""# Função para validar o formato da data
 def validar_data(nascimento):
     try:
         datetime.strptime(nascimento, '%d-%m-%Y')
@@ -36,7 +58,7 @@ P para pesquisar um cadastro
 E para exibir a tabela de livros disponíveis
 A para alugar um livro
 D para devolver um livro
-R para remover um cadastroa
+R para remover um cadastro
 S para sair
 
 
@@ -149,4 +171,4 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
     else:
         print('\nComando não encontrado...\n')
-        print('Digite um comando valido!')
+        print('Digite um comando valido!')"""
