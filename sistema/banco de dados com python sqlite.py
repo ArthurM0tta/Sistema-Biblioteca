@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+from prettytable import PrettyTable
 desejo = 0
 
 # Conectar ao banco de dados (se não existir, será criado)
@@ -8,28 +9,7 @@ conn = sqlite3.connect('Biblioteca.db')
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
 
-sql_create_table = '''
-CREATE TABLE IF NOT EXISTS livros (
-    idLivro INTEGER PRIMARY KEY AUTOINCREMENT,
-    genero VARCHAR (),
-    titulo TEXT NOT NULL,
-    autor TEXT,
-    data_publicacao DATE,
-    descricao TEXT
-);
-'''
-
-# Executar o comando SQL
-cursor.execute(sql_create_table)
-
-# Commit para salvar as alterações no banco de dados
-conn.commit()
-
-# Fechar a conexão
-conn.close()
-
-
-"""# Função para validar o formato da data
+# Função para validar o formato da data
 def validar_data(nascimento):
     try:
         datetime.strptime(nascimento, '%d-%m-%Y')
@@ -148,6 +128,41 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
         conn.close()
 
 #------------------------------------------------------------------------------------------------------
+# if para exibir a tabela de livros
+    elif desejo.upper() == 'E':
+        while True:
+
+            # Selecionar todos os registros da tabela "livros"
+            cursor.execute('SELECT * FROM livros')
+
+            # Obter todos os registros
+            livros = cursor.fetchall()
+
+            # Criar uma tabela bonita
+            tabela = PrettyTable()
+            tabela.field_names = ["ID", "Título", "Autor", "Data de Publicação", "Descrição"]
+
+            # Preencher a tabela com os dados
+            for livro in livros:
+                # Verificar se há dados suficientes na tupla
+                if len(livro) >= 5:
+                    try:
+                        data_formatada = datetime.strptime(livro[4], '%Y-%m-%d').strftime('%d/%m/%Y')
+                    except ValueError:
+                        data_formatada = 'Data Indisponível'
+                tabela.add_row([livro[0], livro[2], livro[3], data_formatada, livro[5]])
+
+            # Exibir a tabela formatada
+            print(tabela)
+            # Faça algo se o dado não existir no banco de dados
+            print("\ncpf não encontrado")
+
+            # Fechar a conexão
+            conn.close()
+
+
+#------------------------------------------------------------------------------------------------------
+
     # if para Remover um cadastro
     elif desejo.upper() == 'R':
         conf = input('Você escolheu a remoção de cadastro, deseja prosseguir? (S para Sim e N para Não) ')
@@ -157,9 +172,6 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print('\nOK! Retornando para o menu de escolha!')
 
 #------------------------------------------------------------------------------------------------------
-
-
-
 
 #------------------------------------------------------------------------------------------------------
     # if para Encerrar programa
@@ -171,4 +183,4 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
     else:
         print('\nComando não encontrado...\n')
-        print('Digite um comando valido!')"""
+        print('Digite um comando valido!')
