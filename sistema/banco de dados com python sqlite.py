@@ -73,7 +73,7 @@ O que você deseja fazer: ''')
 #------------------------------------------------------------------------------------------------------
     # if para alteração de cadastro
     elif desejo.upper() == 'M':
-        cpf_alterar = input('Você escolheu a alteração de cadastro, insira o CPF a ser alterado: ')
+        cpf_alterar = input('Você escolheu a alteração de cadastro, insira o CPF a ser alterado(no formato xxx.xxx.xxx-xx): ')
         consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
         cursor.execute(consulta_verificacao, (cpf_alterar,))
         dado_do_banco = cursor.fetchone()
@@ -103,13 +103,13 @@ O que você deseja fazer: ''')
                     cursor.execute(consulta_alteracao, novos_dados)
                     conn.commit()
 
-                    print(f"Cadastro com CPF {cpf_alterar} alterado com sucesso.")
+                    print(f"\nCadastro com CPF {cpf_alterar} alterado com sucesso.")
                 else:
-                    print('Novos dados inválidos. Por favor, insira a nova data no formato correto (Dia-Mês-Ano) e o novo telefone no formato (xx) xxxxx-xxxx.')
+                    print('\nNovos dados inválidos. Por favor, insira a nova data no formato correto (Dia-Mês-Ano) e o novo telefone no formato (xx) xxxxx-xxxx.')
             else:
-                print('Alteração cancelada.')
+                print('\nAlteração cancelada.')
         else:
-            print(f"CPF {cpf_alterar} não encontrado no banco de dados.")
+            print(f"\nCPF {cpf_alterar} não encontrado no banco de dados.")
 #------------------------------------------------------------------------------------------------------
     # if para pesquisar um cadastro
     elif desejo.upper() == 'P':
@@ -151,7 +151,7 @@ O que você deseja fazer: ''')
 #------------------------------------------------------------------------------------------------------
     # if para Remover um cadastro
     elif desejo.upper() == 'R':
-        cpf_remover = input('Você escolheu a remoção de cadastro, insira o CPF a ser removido: ')
+        cpf_remover = input('Você escolheu a remoção de cadastro, insira o CPF a ser removido(no formato xxx.xxx.xxx-xx): ')
 
     # Executar uma consulta SQL para verificar se o CPF existe no banco de dados
         consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
@@ -173,11 +173,11 @@ O que você deseja fazer: ''')
                 consulta_remocao = "DELETE FROM cadastro WHERE cpf = ?"
                 cursor.execute(consulta_remocao, (cpf_remover,))
                 conn.commit()
-                print(f"Cadastro com CPF {cpf_remover} removido com sucesso.")
+                print(f"\nCadastro com CPF {cpf_remover} removido com sucesso.")
             else:
-                print('Remoção cancelada.')
+                print('\nRemoção cancelada.')
         else:
-            print(f"CPF {cpf_remover} não encontrado no banco de dados.")
+            print(f"\nCPF {cpf_remover} não encontrado no banco de dados.")
 #------------------------------------------------------------------------------------------------------
 
 
