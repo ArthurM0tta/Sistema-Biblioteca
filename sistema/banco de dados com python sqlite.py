@@ -9,6 +9,9 @@ conn = sqlite3.connect('Biblioteca.db')
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
 
+
+
+
 # Função para validar o formato da data
 def validar_data(nascimento):
     try:
@@ -104,7 +107,7 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
         # Usar o dado do banco de dados em uma instrução if
         if dado_do_banco:
             # Faça algo se o dado existir no banco de dados
-            cpf, nome, nascimento, telefone, email, data, livro = dado_do_banco
+            cpf, nome, nascimento, telefone, email, data, livro, data_aluguel, data_devolucao = dado_do_banco
 
             # Formatar a data de nascimento
             data_formatada = datetime.strptime(nascimento, "%Y-%m-%d").strftime("%d/%m/%Y")
@@ -116,8 +119,9 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print("Data de nascimento:", data_formatada)
             print("telefone:", telefone)
             print("email:", email)
-            print("data do aluguel:", data)
             print("Livro Alugado:", livro)
+            print("Data do aluguel", data_aluguel)
+            print("Data de devolução", data_devolucao)
         
         else:
             # Faça algo se o dado não existir no banco de dados
