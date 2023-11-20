@@ -120,8 +120,8 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print("telefone:", telefone)
             print("email:", email)
             print("Livro Alugado:", livro)
-            print("Data do aluguel", data_aluguel)
-            print("Data de devolução", data_devolucao)
+            print("Data do aluguel:", data_aluguel)
+            print("Data de devolução:", data_devolucao)
         
         else:
             # Faça algo se o dado não existir no banco de dados
