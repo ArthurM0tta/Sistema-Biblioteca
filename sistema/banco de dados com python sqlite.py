@@ -164,24 +164,59 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
 #------------------------------------------------------------------------------------------------------
 
-    # if para Remover um cadastro
-    elif desejo.upper() == 'R':
+        # if para Remover um cadastro
+        elif desejo.upper() == 'R':
         conf = input('Você escolheu a remoção de cadastro, deseja prosseguir? (S para Sim e N para Não) ')
         if conf.upper() == 'S':
             print('OK! para prosseguir insira o cpf cadastrado a ser removido: ')
         else:
             print('\nOK! Retornando para o menu de escolha!')
-
+a
 #------------------------------------------------------------------------------------------------------
 
+
+        elif desejo.upper() == 'A':
+        while True:
+            cpf = input('\nVocê escolheu a opção de alugar um livro, insira o CPF (no formato xxx.xxx.xxx-xx): ')
+            idLivro = input('\nInsira o ID do Livro escolhido: ')
+
+        #Consulta SQL para obter os dados do cliente
+            consulta_cliente_sql = "SELECT * FROM cadastro WHERE cpf = ?"
+            cursor.execute(consulta_cliente_sql, (cpf,))
+            dados_cliente = cursor.fetchone()
+
+            if dados_cliente:
+                #Consulta SQL para obter os dados do livro
+                consulta_livro_sql = "SELECT * FROM livros WHERE idLivro = ?"
+                cursor.execute(consulta_livro_sql, (idLivro,))
+                dados_livro = cursor.fetchone()
+
+            if dados_livro:
+                titulo_livro = dados_livro[2]  # Substitua pelo índice correto do título no seu banco de dados
+                # Atualiza o cadastro do cliente com o título do livro alugado
+                atualizar_cliente_sql = "UPDATE cadastro SET livro_alugado = ? WHERE cpf = ?"
+                cursor.execute(atualizar_cliente_sql, (titulo_livro, cpf))
+
+                print('Livro alugado com sucesso!')
+                break
+            else:
+                print('Livro não encontrado.')
+            else:
+            print('Cliente não encontrado.')
+
+        #Commit as alterações no banco de dados
+            conn.commit()
+
+        #Fechar a conexão
+            conn.close() 
 #------------------------------------------------------------------------------------------------------
-    # if para Encerrar programa
-    elif desejo.upper() == 'S':
-        print('\nVolte sempre!\n')
-        break
+            # if para Encerrar programa
+        elif desejo.upper() == 'S':
+    print('\nVolte sempre!\n')
+    break
 
 #------------------------------------------------------------------------------------------------------
 
     else:
-        print('\nComando não encontrado...\n')
-        print('Digite um comando valido!')
+    print('\nComando não encontrado...\n')
+    print('Digite um comando valido!')
