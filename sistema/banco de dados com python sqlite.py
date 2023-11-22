@@ -11,6 +11,17 @@ cursor = conn.cursor()
 
 
 
+# Função para calcular a diferença de dias entre duas datas
+def calcular_atraso(fecha_actual, fecha_limite):
+    return (fecha_limite - fecha_actual).days
+
+# Função para verificar se está dentro do prazo ou em atraso
+def verificar_atraso(atraso):
+    if atraso <= 0:
+        return "Estás dentro do prazo. Pode entregar o produto sem problemas."
+    else:
+        return "Está fora do prazo. Deve entregar produtos em 5 dias."
+
 
 # Função para validar o formato da data
 def validar_data(nascimento):
@@ -120,8 +131,8 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print("telefone:", telefone)
             print("email:", email)
             print("Livro Alugado:", livro)
-            print("Data do aluguel:", data_aluguel)
-            print("Data de devolução:", data_devolucao)
+            print("Data do aluguel", data_aluguel)
+            print("Data de devolução", data_devolucao)
         
         else:
             # Faça algo se o dado não existir no banco de dados
@@ -173,12 +184,92 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print('\nOK! Retornando para o menu de escolha!')
 
 #------------------------------------------------------------------------------------------------------
+    # if para alugar um livro
+    elif desejo.upper() == 'A':
+        # Solicitar o CPF do usuário
+        cpf = input('Insira o CPF para alugar o livro: ')
 
+        # Executar uma consulta SQL para verificar se o CPF existe na tabela de cadastro
+        consulta_cpf = "SELECT * FROM cadastro WHERE cpf = ?"
+        cursor.execute(consulta_cpf, (cpf,))
+        dados_cadastro = cursor.fetchone()
+
+        if dados_cadastro:
+            # Solicitar o ID do livro que a pessoa deseja alugar
+            idLivro = input('Insira o ID do livro que deseja alugar: ')
+
+            # Executar uma consulta SQL para obter informações sobre o livro
+            consulta_livro = "SELECT * FROM livros WHERE idLivro = ?"
+            cursor.execute(consulta_livro, (idLivro,))
+
+            livro_selecionado = cursor.fetchone()
+
+            if livro_selecionado:
+                # Mostrar informações do livro selecionado
+                print("\nInformações do livro selecionado:")
+                print("ID:", livro_selecionado[0])
+                print("Gênero:", livro_selecionado[1])
+                print("Título:", livro_selecionado[2])
+                print("Autor:", livro_selecionado[3])
+                print("Data de Publicação:", livro_selecionado[4])
+                print("Descrição:", livro_selecionado[5])
+
+                # Confirmar se a pessoa deseja alugar o livro
+                confirmacao_aluguel = input('Deseja alugar este livro? (S para Sim e N para Não): ')
+
+                if confirmacao_aluguel.upper() == 'S':
+                # Atualizar a tabela de cadastro com o livro alugado, data_aluguel e data_devolucao
+                    data_aluguel = datetime.now().date()
+                    data_devolucao = data_aluguel + timedelta(days=5)
+
+                    update_cadastro_query = "UPDATE cadastro SET livro_alugado = ?, data_aluguel = ?, data_devolucao = ? WHERE cpf = ?"
+                    cursor.execute(update_cadastro_query, (livro_selecionado[2], data_aluguel, data_devolucao, cpf))
+                    conn.commit()
+            
+                print(f'Livro alugado com sucesso! Devolução até {data_devolucao.strftime("%d/%m/%Y")}.')
+            else:
+                print('Aluguel cancelado.')
+        else:
+            print('Livro não encontrado.')
+#------------------------------------------------------------------------------------------------------------
+    # Devolver Livro:
+    elif desejo.upper() == 'D':
+        # Solicitar o CPF do usuário
+        cpf = input('Insira o CPF para devolver o livro: ')
+
+        # Executar uma consulta SQL para verificar se o CPF existe na tabela de cadastro
+        consulta_cpf = "SELECT * FROM cadastro WHERE cpf = ?"
+        cursor.execute(consulta_cpf, (cpf,))
+        dados_cadastro = cursor.fetchone()
+
+        if dados_cadastro:
+            # Verificar se o usuário possui um livro alugado
+            if dados_cadastro[6]:  # A sexta coluna (índice 5) é a coluna livro_alugado
+                # Mostrar informações do livro alugado
+                print('\nVocê tem o livro "{}" alugado.'.format(dados_cadastro[6]))
+                confirmacao_devolucao = input('Deseja devolver este livro? (S para Sim e N para Não): ')
+
+                if confirmacao_devolucao.upper() == 'S':
+                    # Calcular atraso e mensagem
+                    atraso = calcular_atraso(datetime.now().date(), dados_cadastro[8])  # Oitava coluna (índice 7) é a coluna data_devolucao
+                    mensaje = verificar_atraso(atraso)
+
+                    # Atualizar a tabela de cadastro para indicar que o livro foi devolvido
+                    update_cadastro_query = "UPDATE cadastro SET livro_alugado = NULL, data_aluguel = NULL, data_devolucao = NULL WHERE cpf = ?"
+                    cursor.execute(update_cadastro_query, (cpf,))
+                    conn.commit()
+                    print(f'Livro devolvido com sucesso! {mensaje}')
+                else:
+                    print('Devolução cancelada.')
+            else:
+                print('Você não possui nenhum livro alugado no momento.')
+        else:
+            print('CPF não encontrado.')
 #------------------------------------------------------------------------------------------------------
     # if para Encerrar programa
     elif desejo.upper() == 'S':
         print('\nVolte sempre!\n')
-    break
+        break
 
 #------------------------------------------------------------------------------------------------------
 
