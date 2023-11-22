@@ -1,11 +1,16 @@
 import sqlite3
 from datetime import datetime
+from prettytable import PrettyTable
 desejo = 0
 
 # Conectar ao banco de dados (se não existir, será criado)
 conn = sqlite3.connect('Biblioteca.db')
+
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
+
+
+
 
 # Função para validar o formato da data
 def validar_data(nascimento):
@@ -102,7 +107,7 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
         # Usar o dado do banco de dados em uma instrução if
         if dado_do_banco:
             # Faça algo se o dado existir no banco de dados
-            cpf, nome, nascimento, telefone, email, data, livro = dado_do_banco
+            cpf, nome, nascimento, telefone, email, data, livro, data_aluguel, data_devolucao = dado_do_banco
 
             # Formatar a data de nascimento
             data_formatada = datetime.strptime(nascimento, "%Y-%m-%d").strftime("%d/%m/%Y")
@@ -114,8 +119,9 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print("Data de nascimento:", data_formatada)
             print("telefone:", telefone)
             print("email:", email)
-            print("data do aluguel:", data)
             print("Livro Alugado:", livro)
+            print("Data do aluguel:", data_aluguel)
+            print("Data de devolução:", data_devolucao)
         
         else:
             # Faça algo se o dado não existir no banco de dados
@@ -126,6 +132,38 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
         conn.close()
 
 #------------------------------------------------------------------------------------------------------
+# if para exibir a tabela de livros
+    elif desejo.upper() == 'E':
+
+            print('\nLIVROS DISPONÍVEIS ABAIXO:\n')
+            # Selecionar todos os registros da tabela "livros"
+            cursor.execute('SELECT * FROM livros')
+
+            # Obter todos os registros
+            livros = cursor.fetchall()
+
+            # Criar uma tabela bonita
+            tabela = PrettyTable()
+            tabela.field_names = ["ID", "Título", "Autor", "Data de Publicação", "Descrição"]
+
+            # Preencher a tabela com os dados
+            for livro in livros:
+                # Verificar se há dados suficientes na tupla
+                if len(livro) >= 5:
+                    try:
+                        data_formatada = datetime.strptime(livro[4], '%Y-%m-%d').strftime('%d/%m/%Y')
+                    except ValueError:
+                        data_formatada = 'Data Desconhecida'
+                tabela.add_row([livro[0], livro[2], livro[3], data_formatada, livro[5]])
+
+            # Exibir a tabela formatada
+            print(tabela)
+            # Fechar a conexão
+            conn.close()
+
+
+#------------------------------------------------------------------------------------------------------
+
     # if para Remover um cadastro
     elif desejo.upper() == 'R':
         conf = input('Você escolheu a remoção de cadastro, deseja prosseguir? (S para Sim e N para Não) ')
@@ -135,50 +173,6 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
             print('\nOK! Retornando para o menu de escolha!')
 
 #------------------------------------------------------------------------------------------------------
-#Cria parte para que não deixe a pessoa alugar outro livro
-class Cliente:
-    def __init__(self, nome):
-        self.nome = nome
-        self.livros_alugados = [1]
-
-class Livraria:
-    def __init__(self):
-        self.livros = []
-
-    def add_livro(self, livro):
-        self.livros.append(livro)
-
-    def alugar_livro(self, cliente, livro_titulo):
-        if len(cliente.livros_alugados) < 2:
-            for livro in self.livros:
-                if livro.titulo == livro_titulo and livro not in cliente.livros_alugados:
-                    cliente.livros_alugados.append(livro)
-                    return f"Livro {livro_titulo} alugado com sucesso."
-            return "Aluguel não permitido. Verifique a disponibilidade do livro."
-        else:
-            return "Aluguel não permitido. Limite de 1 livros alugados por vez atingido."
-
-#---------------------------------------------------------------------------------------
- #Atraso 5 dias 
-
-from datetime import datetime, timedelta
-
-def calcular_atraso(fecha_actual, fecha_limite):
-    return (fecha_limite - fecha_actual).days
-
-def verificar_atraso(atraso):
-    if atraso <= 5:
-        return "Estás dentro do prazo.pode entregar o produto sem problemas."
-    else:
-        return "Esta fora do prazo. Deve entregar produdos em 5 dias."
-
-fecha_actual = datetime.now(30)
-fecha_limite = fecha_actual + timedelta(days=10)
-
-atraso = calcular_atraso(fecha_actual, fecha_limite)
-
-mensaje = verificar_atraso(atraso)
-print(mensaje)
 
 #------------------------------------------------------------------------------------------------------
     # if para Encerrar programa
