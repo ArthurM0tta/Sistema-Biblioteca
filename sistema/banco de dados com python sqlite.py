@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 from prettytable import PrettyTable
+import tkinter as tk
 desejo = 0
 
 # Conectar ao banco de dados (se não existir, será criado)
@@ -9,7 +10,7 @@ conn = sqlite3.connect('Biblioteca.db')
 # Criar um cursor para interagir com o banco de dados
 cursor = conn.cursor()
 
-
+#Todas as funções-----------------------------------------------------------------------------------
 
 # Função para calcular a diferença de dias entre duas datas
 def calcular_atraso(fecha_actual, fecha_limite):
@@ -39,6 +40,7 @@ def validar_cpf(cpf):
 # Função para validar o formato do telefone
 def validar_telefone(telefone):
     return len(telefone) == 14 and telefone[0] == '(' and telefone[3] == ')' and telefone[9] == '-'
+#-------------------------------------------------------------------------------------------------------
 
 print('\nBem-vindo ao programa de gestão de biblioteca!')
 
