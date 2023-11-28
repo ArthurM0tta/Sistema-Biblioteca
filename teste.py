@@ -208,8 +208,6 @@ class BibliotecaGUI:
 
                 # Abrir uma nova janela para edição
                 self.abrir_janela_edicao(nome, nascimento, telefone, email)
-                print("Função realizar_pesquisa chamada com sucesso.")
-
             else:
                 messagebox.showinfo('Mensagem de Aviso', 'CPF não cadastrado. Insira um CPF válido.')
 
@@ -219,7 +217,6 @@ class BibliotecaGUI:
 
     def abrir_janela_edicao(self, nome, nascimento, telefone, email):
         cpf_digitado = self.cpf_entry.get()
-        print("Abrindo janela de edição")
         janela_edicao = tk.Toplevel(self.cadastro)
         janela_edicao.title("Edição de cadastro")
         
@@ -236,7 +233,9 @@ class BibliotecaGUI:
             
             # Atribuir os valores diretamente às variáveis de instância
             self.nome_var.set(nome_atual)
-            self.nascimento_var.set(nascimento_atual)
+            # Formatar a data antes de inseri-la nos campos de entrada
+            data_formatada = datetime.strptime(nascimento_atual, '%Y-%m-%d').strftime('%d-%m-%Y')
+            self.nascimento_var.set(data_formatada)
             self.telefone_var.set(telefone_atual)
             self.email_var.set(email_atual)
 
@@ -249,7 +248,7 @@ class BibliotecaGUI:
             # Entry para nascimento
             tk.Label(janela_edicao, text="Nascimento (DD-MM-YYYY):").pack()
             self.nascimento_entry = tk.Entry(janela_edicao)
-            self.nascimento_entry.insert(0, nascimento_atual)  # Preencher com o valor atual
+            self.nascimento_entry.insert(0, data_formatada)  # Preencher com o valor atual
             self.nascimento_entry.pack()
 
             # Entry para telefone
@@ -271,13 +270,10 @@ class BibliotecaGUI:
 
     def confirmar_edicao(self):
         # Obter os dados editados
-        nome = self.nome_var.get()
-        nascimento = self.nascimento_var.get()
-        telefone = self.telefone_var.get()
-        email = self.email_var.get()
-
-        print(f"Confirmar Edição: Nome_var: {self.nome_var.get()}, Nascimento_var: {self.nascimento_var.get()}, Telefone_var: {self.telefone_var.get()}, Email_var: {self.email_var.get()}")
-
+        nome = self.nome_entry.get()
+        nascimento = self.nascimento_entry.get()
+        telefone = self.telefone_entry.get()
+        email = self.email_entry.get()
 
 
         def validar_cpf(cpf):
@@ -308,7 +304,7 @@ class BibliotecaGUI:
                 self.conn.commit()   
                 # Fechar a conexão após a atualização
                 self.fechar_conexao()
-                messagebox.showinfo('Cadastro atualizado com sucesso!')
+                messagebox.showinfo('Cadastro atualizado','Cadastro atualizado com sucesso!')
                 # Fechar a janela de alteração após a atualização
                 self.cadastro.destroy()
             else:
