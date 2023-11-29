@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
 
 # Funções
@@ -365,17 +365,42 @@ class BibliotecaGUI:
         janela_livros.title("Lista de Livros")
         #janela_livros.geometry(padx=10, pady=10)
         
-        tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
+        # tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
         
        
         consulta_livros = "SELECT * FROM livros"
         self.cursor.execute(consulta_livros)
         livros = self.cursor.fetchall()
        # titulo = livros
+       # Criar a Treeview
+        tree = ttk.Treeview(janela_livros)
+        # Definir os estilos para cabeçalhos em negrito
+        estilo = ttk.Style()
+        estilo.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Definir as colunas
+        tree["columns"] = ("Gênero","Título", "Autor", "Ano de Publicação", "Descrição")
+
+        # Configurar as colunas
+        tree.column("#0", width=0, stretch=tk.NO)  # Coluna invisível
+        tree.column("Gênero", anchor=tk.W, width=200)
+        tree.column("Título", anchor=tk.W, width=200)
+        tree.column("Autor", anchor=tk.W, width=200)
+        tree.column("Ano de Publicação", anchor=tk.W, width=200)
+        tree.column("Descrição", anchor=tk.W, width=500)
+
+        # Configurar os cabeçalhos das colunas
+        tree.heading("#0", text="", anchor=tk.W)
+        tree.heading("Gênero", text="Gênero", anchor=tk.W)
+        tree.heading("Título", text="Título", anchor=tk.W)
+        tree.heading("Autor", text="Autor", anchor=tk.W)
+        tree.heading("Ano de Publicação", text="Ano de Publicação", anchor=tk.W)
+        tree.heading("Descrição", text="Descrição", anchor=tk.W)
         for livro in livros:
-            livros_conc = livro[2],'|', livro[3], '|', livro[4], '|', livro[5]
-            tk.Label(janela_livros, text=livros_conc).pack()
-            
+            tree.insert("", tk.END, values=(livro[1],livro[2], livro[3], livro[4], livro[5]))
+
+        # Adicionar a Treeview à janela
+        tree.pack(padx=10, pady=10)
         
        
 
