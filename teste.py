@@ -368,7 +368,7 @@ class BibliotecaGUI:
     def alugar_livro(self):
         aluguel_janela = tk.Toplevel(self.root)
         aluguel_janela.title("Aluguel de Livro")
-   
+
         self.cpf_leitor_label = tk.Label(aluguel_janela, text="Incira o CPF")
         self.cpf_leitor_entry = tk.Entry(aluguel_janela)
         self.cpf_leitor_label.pack()
@@ -381,7 +381,7 @@ class BibliotecaGUI:
 
     def devolver_livro(self): 
 
-     messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
+        messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
 
     def devolver_livro(self):
 
