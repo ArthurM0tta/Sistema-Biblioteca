@@ -361,7 +361,26 @@ class BibliotecaGUI:
         self.pesquisar_cadastro_button.pack()
 
     def exibir_livros(self):
-        messagebox.showinfo("Exibição de Livros", "Coloque a exibição de livros aqui.")
+        janela_livros = tk.Toplevel(self.root)
+        janela_livros.title("Lista de Livros")
+        #janela_livros.geometry(padx=10, pady=10)
+        
+        tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
+        
+       
+        consulta_livros = "SELECT * FROM livros"
+        self.cursor.execute(consulta_livros)
+        livros = self.cursor.fetchall()
+       # titulo = livros
+        for livro in livros:
+            livros_conc = livro[2],'|', livro[3], '|', livro[4], '|', livro[5]
+            tk.Label(janela_livros, text=livros_conc).pack()
+            
+        
+       
+
+                
+
 
     def alugar_livro(self):
         messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
@@ -370,7 +389,57 @@ class BibliotecaGUI:
         messagebox.showinfo("Devolução de Livro", "Coloque a funcionalidade de devolução de livro aqui.")
 
     def remover_cadastro(self):
-        messagebox.showinfo("Remoção de Cadastro", "Coloque a remoção de cadastro aqui.")
+        remover = tk.Tk()
+        self.remover = remover
+        self.remover.title("Remover Cadastro")
+        
+
+        self.cpf_label = tk.Label(self.remover, text="Insira o CPF a ser removido (no formato xxx.xxx.xxx-xx):")
+        self.cpf_label.pack()
+
+        self.cpf_var = tk.StringVar()
+        self.cpf_entry = tk.Entry(self.remover, textvariable=self.cpf_var)
+        self.cpf_entry.pack()
+        
+        def confirmar_remover_cadastro():
+            cpf = self.cpf_entry.get()
+                
+            def validar_cpf(cpf):
+                return len(cpf) == 14 and cpf[3] == '.' and cpf[7] == '.' and cpf[11] == '-'
+            
+            try:
+            
+                if validar_cpf(cpf):
+                    # Verificar se o CPF existe no banco de dados
+                    consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
+                    self.cursor.execute(consulta_verificacao, (cpf,))
+                    resultado = self.cursor.fetchone()
+
+                    if resultado:
+                        # CPF encontrado, realizar a remoção
+                        consulta_remocao = "DELETE FROM cadastro WHERE cpf = ?"
+                        self.cursor.execute(consulta_remocao, (cpf,))
+                        self.conn.commit()
+                        messagebox.showinfo('Cadastro Removido', 'Cadastro removido com sucesso!')
+                    else:
+                        messagebox.showinfo('Mensagem de Aviso', 'CPF não encontrado. Insira um CPF válido.')
+            except Exception as ex:
+                messagebox.showerror('Erro', f'Erro inesperado: {str(ex)}')
+
+            finally:
+                # Fechar a conexão após a operação
+                self.fechar_conexao()
+            
+            # Fechar a janela de remoção após a operação
+            remover.destroy()
+
+        self.confirmar_button = tk.Button(remover, text="Confirmar", command=confirmar_remover_cadastro)
+        self.confirmar_button.pack()
+
+
+
+
+    
 
 
 
