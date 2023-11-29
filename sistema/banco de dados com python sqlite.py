@@ -284,6 +284,7 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
 
 #------------------------------------------------------------------------------------------------------
+<<<<<<< Updated upstream
     # if para Encerrar programa
     elif desejo.upper() == 'S':
         print('\nVolte sempre!\n')
@@ -297,3 +298,6 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
 # Fechar a conexão fora do bloco elif
 conn.close()
+=======
+ 
+>>>>>>> Stashed changes
