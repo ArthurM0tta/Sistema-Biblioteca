@@ -1,5 +1,5 @@
 
-#-------------------------------------------------------------------AQUI
+
 import sqlite3
 from datetime import datetime, timedelta
 import tkinter as tk
@@ -366,20 +366,25 @@ class BibliotecaGUI:
         messagebox.showinfo("Exibição de Livros", "Coloque a exibição de livros aqui.")
 
     def alugar_livro(self):
-    
-     aluguel_janela = tk.Toplevel(self.root)
-     aluguel_janela.title("Aluguel de Livro")
-     self.cpf_leitor_label = tk.Label(aluguel_janela, text="Incira o CPF")
-     self.cpf_leitor_entry = tk.Entry(aluguel_janela)
-     self.cpf_leitor_label.pack()
-     self.cpf_leitor_entry.pack()
+        aluguel_janela = tk.Toplevel(self.root)
+        aluguel_janela.title("Aluguel de Livro")
+   
+        self.cpf_leitor_label = tk.Label(aluguel_janela, text="Incira o CPF")
+        self.cpf_leitor_entry = tk.Entry(aluguel_janela)
+        self.cpf_leitor_label.pack()
+        self.cpf_leitor_entry.pack()
 
-     self.id_livro_label = tk.Label(aluguel_janela, text="ID do Livro:")
-     self.id_livro_entry = tk.Entry(aluguel_janela)
-     self.id_livro_label.pack()
-     self.id_livro_entry.pack()
+        self.id_livro_label = tk.Label(aluguel_janela, text="ID do Livro:")
+        self.id_livro_entry = tk.Entry(aluguel_janela)
+        self.id_livro_label.pack()
+        self.id_livro_entry.pack()
 
     def devolver_livro(self): 
+
+     messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
+
+    def devolver_livro(self):
+
         messagebox.showinfo("Devolução de Livro", "Coloque a funcionalidade de devolução de livro aqui.")
 
     def remover_cadastro(self):
@@ -393,4 +398,7 @@ root = tk.Tk()
 app = BibliotecaGUI(root)
 
 # Execute o loop principal da interface gráfica
+
+root.mainloop()
+
 root.mainloop()
