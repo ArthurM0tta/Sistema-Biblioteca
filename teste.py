@@ -367,44 +367,57 @@ class BibliotecaGUI:
         
         # tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
         
-       
+
         consulta_livros = "SELECT * FROM livros"
         self.cursor.execute(consulta_livros)
         livros = self.cursor.fetchall()
-       # titulo = livros
-       # Criar a Treeview
+        # titulo = livros
+        # Criar a Treeview
         tree = ttk.Treeview(janela_livros)
         # Definir os estilos para cabeçalhos em negrito
         estilo = ttk.Style()
         estilo.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
         
         # Definir as colunas
-        tree["columns"] = ("Gênero","Título", "Autor", "Ano de Publicação", "Descrição")
+        tree["columns"] = ("ID","Gênero","Título", "Autor", "Ano de Publicação", "Descrição")
 
         # Configurar as colunas
         tree.column("#0", width=0, stretch=tk.NO)  # Coluna invisível
+        tree.column("ID", anchor=tk.W, width=200)
         tree.column("Gênero", anchor=tk.W, width=200)
         tree.column("Título", anchor=tk.W, width=200)
         tree.column("Autor", anchor=tk.W, width=200)
         tree.column("Ano de Publicação", anchor=tk.W, width=200)
         tree.column("Descrição", anchor=tk.W, width=500)
+        
 
         # Configurar os cabeçalhos das colunas
         tree.heading("#0", text="", anchor=tk.W)
+        tree.heading("ID", text="ID", anchor=tk.W)
         tree.heading("Gênero", text="Gênero", anchor=tk.W)
         tree.heading("Título", text="Título", anchor=tk.W)
         tree.heading("Autor", text="Autor", anchor=tk.W)
         tree.heading("Ano de Publicação", text="Ano de Publicação", anchor=tk.W)
         tree.heading("Descrição", text="Descrição", anchor=tk.W)
         for livro in livros:
-            tree.insert("", tk.END, values=(livro[1],livro[2], livro[3], livro[4], livro[5]))
+            # Verificar se a data é 'Varia' antes de tentar formatar
+            data_publicacao = livro[4]
+            if data_publicacao.lower() == 'varia':
+                data_formatada = data_publicacao
+            else:
+                try:
+                    data_formatada = datetime.strptime(data_publicacao, '%Y-%m-%d').strftime('%d-%m-%Y')
+                except ValueError:
+                    # Se a data não for válida, use o valor original
+                    data_formatada = data_publicacao
+            tree.insert("", tk.END, values=(livro[0], livro[1],livro[2], livro[3], data_formatada, livro[5]))
 
         # Adicionar a Treeview à janela
         tree.pack(padx=10, pady=10)
         
-       
 
-                
+
+
 
 
     def alugar_livro(self):
@@ -463,8 +476,6 @@ class BibliotecaGUI:
 
 
 
-
-    
 
 
 
