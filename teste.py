@@ -65,6 +65,7 @@ class BibliotecaGUI:
 
         self.sair_button = tk.Button(root, text="Sair", command=root.destroy)
         self.sair_button.pack()
+        
 
     def fechar_conexao(self):
         # Fechar a conexão com o banco de dados
@@ -334,17 +335,27 @@ class BibliotecaGUI:
             cpf_digitado = self.cpf_entry.get()
 
             # Consulta para obter informações do cadastro associadas ao CPF
-            consulta_obter_cadastro = "SELECT nome, nascimento, telefone, email FROM cadastro WHERE cpf = ?"
+            consulta_obter_cadastro = "SELECT nome, nascimento, telefone, email, livro_alugado, data_aluguel, data_devolucao FROM cadastro WHERE cpf = ?"
             dados_para_consulta = (cpf_digitado,)
             self.cursor.execute(consulta_obter_cadastro, dados_para_consulta)
             resultado = self.cursor.fetchone()
 
             if resultado:
-                nome, nascimento, telefone, email = resultado
+                nome, nascimento, telefone, email, livro_alugado, data_aluguel, data_devolucao = resultado
 
                 # Formatar a data para exibição
                 data_formatada = datetime.strptime(nascimento, '%Y-%m-%d').strftime('%d-%m-%Y')
+                data_aluguel_formatada = datetime.strptime(data_aluguel, '%Y-%m-%d').strftime('%d-%m-%Y')
+                data_devolucao_formatada = datetime.strptime(data_devolucao, '%Y-%m-%d').strftime('%d-%m-%Y')
 
+                # Verificar se a entrega está atrasada
+                hoje = datetime.now().date()
+                data_devolucao = datetime.strptime(data_devolucao, '%Y-%m-%d').date()
+
+                if hoje > data_devolucao:
+                    status_entrega = "Entrega Atrasada"
+                else:
+                    status_entrega = "Dentro do Prazo"
                 # Criar nova janela para exibir os dados
                 dados_janela = tk.Toplevel()
                 dados_janela.title("Dados do Cadastro")
@@ -354,6 +365,11 @@ class BibliotecaGUI:
                 tk.Label(dados_janela, text=f"Nascimento: {data_formatada}").pack()
                 tk.Label(dados_janela, text=f"Telefone: {telefone}").pack()
                 tk.Label(dados_janela, text=f"Email: {email}").pack()
+                tk.Label(dados_janela, text=f"Livro alugado: {livro_alugado}").pack()
+                tk.Label(dados_janela, text=f"Data do Aluguel: {data_aluguel_formatada}").pack()
+                tk.Label(dados_janela, text=f"Data de Devolução: {data_devolucao_formatada}").pack()
+                tk.Label(dados_janela, text=f"Status da Entrega: {status_entrega}").pack()
+
             else:
                 messagebox.showinfo('Mensagem de Erro', 'CPF não encontrado. Por favor, insira um CPF existente.')
 
@@ -364,25 +380,171 @@ class BibliotecaGUI:
     def exibir_livros(self):
         messagebox.showinfo("Exibição de Livros", "Coloque a exibição de livros aqui.")
 #---------------------------------------------------------------------------------------------------------------------------------------------
+    
     def alugar_livro(self):
         aluguel_janela = tk.Toplevel(self.root)
         aluguel_janela.title("Aluguel de Livro")
-   
-        self.cpf_leitor_label = tk.Label(aluguel_janela, text="Incira o CPF")
+
+        self.cpf_leitor_label = tk.Label(aluguel_janela, text="Insira o CPF (no formato xxx.xxx.xxx-xx)")
         self.cpf_leitor_entry = tk.Entry(aluguel_janela)
         self.cpf_leitor_label.pack()
         self.cpf_leitor_entry.pack()
 
-        self.id_livro_label = tk.Label(aluguel_janela, text="ID do Livro:")
-        self.id_livro_entry = tk.Entry(aluguel_janela)
-        self.id_livro_label.pack()
-        self.id_livro_entry.pack()
+        def verificar_cpf():
+            cpf_digitado = self.cpf_leitor_entry.get()
+
+            # Consultar o banco de dados para verificar se o CPF existe
+            consulta_cpf = "SELECT * FROM cadastro WHERE cpf = ?"
+            dados_para_consulta = (cpf_digitado,)
+            self.cursor.execute(consulta_cpf, dados_para_consulta)
+            leitor = self.cursor.fetchone()
+
+            if leitor:
+                # Se o CPF existir, abrir outra janela para inserir o ID do livro
+                self.abrir_janela_inserir_livro(leitor)
+                aluguel_janela.destroy()
+            else:
+                messagebox.showinfo("Aviso", "CPF não encontrado. Insira um CPF válido.")
+
+        # Botão para verificar o CPF
+        self.verificar_cpf_button = tk.Button(aluguel_janela, text="Verificar CPF", command=verificar_cpf)
+        self.verificar_cpf_button.pack()
+
+    def abrir_janela_inserir_livro(self, leitor):
+        # Verificar se o leitor já possui um livro alugado
+        if leitor[6]:  # A coluna correspondente ao livro alugado (índice 6) não é None
+            # Mostrar uma mensagem indicando que o leitor já possui um livro alugado
+            messagebox.showinfo("Aviso", f"Aluguel Indisponível: \nEste cadastro já possui o livro '{leitor[6]}' alugado.")
+        else:
+            # Continuar com a lógica atual para inserir o ID do livro
+            janela_livro = tk.Toplevel(self.root)
+            janela_livro.title("Inserir ID do Livro")
+
+            self.id_livro_label = tk.Label(janela_livro, text='''Insira o ID do Livro que deseja alugar: 
+            (Consulte o ID na página inicial no botão de Exibir Livros)''')
+            self.id_livro_entry = tk.Entry(janela_livro)
+            self.id_livro_label.pack()
+            self.id_livro_entry.pack()
+
+            def exibir_detalhes_livro():
+                idLivro = self.id_livro_entry.get()
+
+                # Consultar o banco de dados para obter os detalhes do livro
+                consulta_livro = "SELECT * FROM livros WHERE idLivro = ?"
+                dados_para_consulta = (idLivro,)
+                self.cursor.execute(consulta_livro, dados_para_consulta)
+                livro = self.cursor.fetchone()
+        
+                if livro:
+                    # Se o livro existir, abrir uma janela para mostrar os detalhes
+                    self.mostrar_detalhes_livro(janela_livro, livro, leitor)
+                else:
+                    messagebox.showinfo("Aviso", "ID do livro não encontrado. Insira um ID válido.")
+
+        # Botão para exibir detalhes do livro
+        tk.Button(janela_livro, text="Exibir Detalhes", command=exibir_detalhes_livro).pack()
+
+
+    def mostrar_detalhes_livro(self, janela_livro, livro, leitor):
+        # Esta função abre uma janela para mostrar os detalhes do livro e confirmar o aluguel
+        janela_detalhes = tk.Toplevel(self.root)
+        janela_detalhes.title("Detalhes do Livro")
+
+        # Mostrar os detalhes do livro
+        detalhes_label = tk.Label(janela_detalhes, text=f"Detalhes do Livro:\n\nID: {livro[0]}\nGênero: {livro[1]}\nTítulo: {livro[2]}\nAutor: {livro[3]}\nAno de Publicação: {livro[4]}\nDescrição: {livro[5]}")
+        detalhes_label.pack()
+        
+        # Frame para conter os botões
+        frame_botoes = tk.Frame(janela_detalhes)
+        frame_botoes.pack(side=tk.BOTTOM, padx=5)
+
+        # Botão para alugar o livro
+        alugar_button = tk.Button(frame_botoes, text="Alugar", command=lambda: self.alugar_confirmado(janela_detalhes, livro, leitor))
+        alugar_button.pack(side=tk.LEFT, padx=5)
+
+        # Botão para cancelar
+        cancelar_button = tk.Button(frame_botoes, text="Cancelar", command=lambda: self.cancelar_aluguel(janela_detalhes))
+        cancelar_button.pack(side=tk.LEFT, padx=5)
+
+
+    def alugar_confirmado(self, janela_detalhes, livro, leitor):
+        # Implemente a lógica para concluir o aluguel aqui
+
+        # Obtém o ID do leitor
+        id_leitor = leitor[0]
+
+        # Obtém as informações do livro
+        livro = livro[0]
+        nome_livro = livro[2]
+
+        # Data atual
+        data_aluguel = datetime.now().strftime('%Y-%m-%d')
+
+        # Data de devolução (5 dias a partir da data de aluguel)
+        data_devolucao = (datetime.now() + timedelta(days=5)).strftime('%Y-%m-%d')
+
+        # Atualiza a tabela de cadastro
+        consulta_atualizacao = "UPDATE cadastro SET livro_alugado=?, data_aluguel=?, data_devolucao=? WHERE id=?"
+        dados_para_atualizacao = (nome_livro, data_aluguel, data_devolucao, id_leitor)
+        self.cursor.execute(consulta_atualizacao, dados_para_atualizacao)
+        self.conn.commit()
+
+        # Fechar as janelas após concluir o aluguel
+        janela_detalhes.destroy()
+        # Se desejar, você pode chamar outra função ou procedimento para finalizar o aluguel
+
+    def cancelar_aluguel(self, janela_detalhes):
+        # Esta função é chamada quando o usuário decide cancelar o aluguel
+        # Fechar a janela de detalhes
+        janela_detalhes.destroy()
 
     def devolver_livro(self): 
 
-     messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
+       def abrir_janela_devolver_livro(self, leitor):
+    # Verificar se o leitor possui um livro alugado
+        if leitor[6]:  # A coluna correspondente ao livro alugado (índice 6) não é None
+        # Continuar com a lógica para devolução do livro
+         janela_devolucao = tk.Toplevel(self.root)
+         janela_devolucao.title("Devolver Livro")
 
-   
+        # Mostrar os detalhes do livro alugado
+        detalhes_label = tk.Label(janela_devolucao, text=f"Detalhes do Livro Alugado:\n\nID: {leitor[6]}")  # 6 é o índice da coluna do livro alugado
+        detalhes_label.pack()
+
+        # Frame para conter os botões
+        frame_botoes = tk.Frame(janela_devolucao)
+        frame_botoes.pack(side=tk.BOTTOM, padx=5)
+
+        # Botão para devolver o livro
+        devolver_button = tk.Button(frame_botoes, text="Devolver", command=lambda: self.devolver_confirmado(janela_devolucao, leitor))
+        devolver_button.pack(side=tk.LEFT, padx=5)
+
+        # Botão para cancelar
+        cancelar_button = tk.Button(frame_botoes, text="Cancelar", command=lambda: self.cancelar_devolucao(janela_devolucao))
+        cancelar_button.pack(side=tk.LEFT, padx=5)
+        
+     
+
+def devolver_confirmado(self, janela_devolucao, leitor):
+    # Lógica para devolução do livro
+    livro_devolvido = leitor[6]  # Obtém o ID do livro alugado
+    # Atualizar o banco de dados para indicar que o livro foi devolvido (definir a coluna correspondente ao livro alugado como None)
+    update_query = "UPDATE cadastro SET livro_alugado = NULL WHERE cpf = ?"
+    dados_para_atualizacao = (leitor[0],)  # Assumindo que leitor[0] contém o CPF
+    self.cursor.execute(update_query, dados_para_atualizacao)
+    self.conexao.commit()
+
+    # Mostrar mensagem de sucesso
+    messagebox.showinfo("Sucesso", f"Livro '{livro_devolvido}' devolvido com sucesso.")
+
+    # Fechar a janela de devolução
+    janela_devolucao.destroy()
+
+def cancelar_devolucao(self, janela_devolucao):
+    # Lógica para cancelar a devolução (se necessário)
+    # Pode não ser necessário fazer nada aqui, dependendo da lógica do seu programa
+    janela_devolucao.destroy()
+
 
     def remover_cadastro(self):
         messagebox.showinfo("Remoção de Cadastro", "Coloque a remoção de cadastro aqui.")
