@@ -202,7 +202,7 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
         if dados_cadastro:
             # Verificar se o usuário já possui um livro alugado
-            if dados_cadastro[6] is not None:  # A sexta coluna (índice 5) é a coluna livro_alugado
+            if dados_cadastro[6] != "Nenhum livro cadastrado":  # A sexta coluna (índice 5) é a coluna livro_alugado
                 print(f'\nVocê já possui o livro "{dados_cadastro[6]}" alugado.')
                 print(f'Devolva o livro atual antes de alugar um novo.')
             else:
@@ -284,7 +284,6 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
 
 #------------------------------------------------------------------------------------------------------
-<<<<<<< Updated upstream
     # if para Encerrar programa
     elif desejo.upper() == 'S':
         print('\nVolte sempre!\n')
@@ -298,6 +297,3 @@ L para alterar o livro alugado (apenas caso haja algum erro de seleção!) ''')
 
 # Fechar a conexão fora do bloco elif
 conn.close()
-=======
- 
->>>>>>> Stashed changes
