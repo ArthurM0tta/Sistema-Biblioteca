@@ -500,6 +500,7 @@ class BibliotecaGUI:
 
     def devolver_livro(self): 
 
+<<<<<<< HEAD
        def abrir_janela_devolver_livro(self, leitor):
     # Verificar se o leitor possui um livro alugado
         if leitor[6]:  # A coluna correspondente ao livro alugado (índice 6) não é None
@@ -544,6 +545,10 @@ def cancelar_devolucao(self, janela_devolucao):
     # Lógica para cancelar a devolução (se necessário)
     # Pode não ser necessário fazer nada aqui, dependendo da lógica do seu programa
     janela_devolucao.destroy()
+=======
+        messagebox.showinfo("Aluguel de Livro", "Coloque a funcionalidade de aluguel de livro aqui.")
+
+>>>>>>> 2cb902a28c41e02669bc3ccee6c2b7c06593227f
 
 
     def remover_cadastro(self):
