@@ -72,7 +72,7 @@ class BibliotecaGUI:
         self.conn.close()
         self.root.destroy()
 
-    # Adicione as demais funções de acordo com suas necessidades
+#--------------------------------------------------------------------------------------------------------
 
     def criar_cadastro(self):
         cadastro = tk.Tk()
@@ -172,6 +172,8 @@ class BibliotecaGUI:
         # Botão de confirmação
         self.confirmar_button = tk.Button(cadastro, text="Confirmar", command=confirmar_envio)
         self.confirmar_button.pack()
+
+#--------------------------------------------------------------------------------------------------------
 
     def alterar_cadastro(self):
         cadastro = tk.Tk()
@@ -316,8 +318,7 @@ class BibliotecaGUI:
         except Exception as ex:
             messagebox.showerror('Erro', f'Erro inesperado: {str(ex)}')
 
-
-
+#--------------------------------------------------------------------------------------------------------
 
     def pesquisar_cadastro(self):
         cadastro = tk.Tk()
