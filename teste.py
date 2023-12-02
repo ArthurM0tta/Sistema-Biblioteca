@@ -3,7 +3,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
 
 # Funções
@@ -364,7 +364,64 @@ class BibliotecaGUI:
         self.pesquisar_cadastro_button.pack()
 
     def exibir_livros(self):
-        messagebox.showinfo("Exibição de Livros", "Coloque a exibição de livros aqui.")
+        janela_livros = tk.Toplevel(self.root)
+        janela_livros.title("Lista de Livros")
+        #janela_livros.geometry(padx=10, pady=10)
+        
+        # tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
+        
+
+        consulta_livros = "SELECT * FROM livros"
+        self.cursor.execute(consulta_livros)
+        livros = self.cursor.fetchall()
+        # titulo = livros
+        # Criar a Treeview
+        tree = ttk.Treeview(janela_livros)
+        # Definir os estilos para cabeçalhos em negrito
+        estilo = ttk.Style()
+        estilo.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Definir as colunas
+        tree["columns"] = ("ID","Gênero","Título", "Autor", "Ano de Publicação", "Descrição")
+
+        # Configurar as colunas
+        tree.column("#0", width=0, stretch=tk.NO)  # Coluna invisível
+        tree.column("ID", anchor=tk.W, width=200)
+        tree.column("Gênero", anchor=tk.W, width=200)
+        tree.column("Título", anchor=tk.W, width=200)
+        tree.column("Autor", anchor=tk.W, width=200)
+        tree.column("Ano de Publicação", anchor=tk.W, width=200)
+        tree.column("Descrição", anchor=tk.W, width=500)
+        
+
+        # Configurar os cabeçalhos das colunas
+        tree.heading("#0", text="", anchor=tk.W)
+        tree.heading("ID", text="ID", anchor=tk.W)
+        tree.heading("Gênero", text="Gênero", anchor=tk.W)
+        tree.heading("Título", text="Título", anchor=tk.W)
+        tree.heading("Autor", text="Autor", anchor=tk.W)
+        tree.heading("Ano de Publicação", text="Ano de Publicação", anchor=tk.W)
+        tree.heading("Descrição", text="Descrição", anchor=tk.W)
+        for livro in livros:
+            # Verificar se a data é 'Varia' antes de tentar formatar
+            data_publicacao = livro[4]
+            if data_publicacao.lower() == 'varia':
+                data_formatada = data_publicacao
+            else:
+                try:
+                    data_formatada = datetime.strptime(data_publicacao, '%Y-%m-%d').strftime('%d-%m-%Y')
+                except ValueError:
+                    # Se a data não for válida, use o valor original
+                    data_formatada = data_publicacao
+            tree.insert("", tk.END, values=(livro[0], livro[1],livro[2], livro[3], data_formatada, livro[5]))
+
+        # Adicionar a Treeview à janela
+        tree.pack(padx=10, pady=10)
+        
+
+
+
+
 
     def alugar_livro(self):
         aluguel_janela = tk.Toplevel(self.root)
@@ -389,7 +446,55 @@ class BibliotecaGUI:
         messagebox.showinfo("Devolução de Livro", "Coloque a funcionalidade de devolução de livro aqui.")
 
     def remover_cadastro(self):
-        messagebox.showinfo("Remoção de Cadastro", "Coloque a remoção de cadastro aqui.")
+        remover = tk.Tk()
+        self.remover = remover
+        self.remover.title("Remover Cadastro")
+        
+
+        self.cpf_label = tk.Label(self.remover, text="Insira o CPF a ser removido (no formato xxx.xxx.xxx-xx):")
+        self.cpf_label.pack()
+
+        self.cpf_var = tk.StringVar()
+        self.cpf_entry = tk.Entry(self.remover, textvariable=self.cpf_var)
+        self.cpf_entry.pack()
+        
+        def confirmar_remover_cadastro():
+            cpf = self.cpf_entry.get()
+                
+            def validar_cpf(cpf):
+                return len(cpf) == 14 and cpf[3] == '.' and cpf[7] == '.' and cpf[11] == '-'
+            
+            try:
+            
+                if validar_cpf(cpf):
+                    # Verificar se o CPF existe no banco de dados
+                    consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
+                    self.cursor.execute(consulta_verificacao, (cpf,))
+                    resultado = self.cursor.fetchone()
+
+                    if resultado:
+                        # CPF encontrado, realizar a remoção
+                        consulta_remocao = "DELETE FROM cadastro WHERE cpf = ?"
+                        self.cursor.execute(consulta_remocao, (cpf,))
+                        self.conn.commit()
+                        messagebox.showinfo('Cadastro Removido', 'Cadastro removido com sucesso!')
+                    else:
+                        messagebox.showinfo('Mensagem de Aviso', 'CPF não encontrado. Insira um CPF válido.')
+            except Exception as ex:
+                messagebox.showerror('Erro', f'Erro inesperado: {str(ex)}')
+
+            finally:
+                # Fechar a conexão após a operação
+                self.fechar_conexao()
+            
+            # Fechar a janela de remoção após a operação
+            remover.destroy()
+
+        self.confirmar_button = tk.Button(remover, text="Confirmar", command=confirmar_remover_cadastro)
+        self.confirmar_button.pack()
+
+
+
 
 
 
