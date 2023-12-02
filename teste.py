@@ -1,8 +1,9 @@
 
+
 import sqlite3
 from datetime import datetime, timedelta
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
 
 
 # Funções
@@ -65,14 +66,13 @@ class BibliotecaGUI:
 
         self.sair_button = tk.Button(root, text="Sair", command=root.destroy)
         self.sair_button.pack()
-        
 
     def fechar_conexao(self):
         # Fechar a conexão com o banco de dados
         self.conn.close()
         self.root.destroy()
 
-    # Adicione as demais funções de acordo com suas necessidades
+#--------------------------------------------------------------------------------------------------------
 
     def criar_cadastro(self):
         cadastro = tk.Tk()
@@ -172,6 +172,8 @@ class BibliotecaGUI:
         # Botão de confirmação
         self.confirmar_button = tk.Button(cadastro, text="Confirmar", command=confirmar_envio)
         self.confirmar_button.pack()
+
+#--------------------------------------------------------------------------------------------------------
 
     def alterar_cadastro(self):
         cadastro = tk.Tk()
@@ -316,8 +318,7 @@ class BibliotecaGUI:
         except Exception as ex:
             messagebox.showerror('Erro', f'Erro inesperado: {str(ex)}')
 
-
-
+#--------------------------------------------------------------------------------------------------------
 
     def pesquisar_cadastro(self):
         cadastro = tk.Tk()
@@ -348,17 +349,26 @@ class BibliotecaGUI:
 
                 # Formatar a data para exibição, se estiver presente
                 data_formatada = datetime.strptime(nascimento, '%Y-%m-%d').strftime('%d-%m-%Y') if nascimento else "Data não disponível"
-                data_aluguel_formatada = datetime.strptime(data_aluguel, '%Y-%m-%d').strftime('%d-%m-%Y') if data_aluguel else "Nenhum livro alugado"
-                
-                if data_devolucao:
-                    data_devolucao_formatada = datetime.strptime(data_devolucao, '%Y-%m-%d').strftime('%d-%m-%Y')
+                data_aluguel_formatada = (
+                    datetime.strptime(data_aluguel, '%Y-%m-%d').strftime('%d-%m-%Y')
+                    if data_aluguel and data_aluguel != 'Nenhum livro alugado'
+                    else "Nenhum livro alugado"
+                )
+
+                data_devolucao_formatada = (
+                    datetime.strptime(data_devolucao, '%Y-%m-%d').strftime('%d-%m-%Y')
+                    if data_devolucao and data_devolucao != 'Nenhum livro alugado'
+                    else "Nenhum livro alugado"
+                )
+
+                if data_devolucao and data_devolucao != 'Nenhum livro alugado':
+                    data_devolucao = datetime.strptime(data_devolucao, '%Y-%m-%d').date()
                 else:
-                    data_devolucao_formatada = "Nenhum livro alugado"
+                    data_devolucao = None                  
 
                 # Verificar se a entrega está atrasada
                 hoje = datetime.now().date()
-                data_devolucao = datetime.strptime(data_devolucao, '%Y-%m-%d').date() if data_devolucao else None
-                
+
                 if livro_alugado:
                     if data_devolucao and hoje > data_devolucao:
                         status_entrega = "Entrega Atrasada"
@@ -366,8 +376,9 @@ class BibliotecaGUI:
                         status_entrega = "Dentro do Prazo"
                 else:
                     livro_alugado = "Nenhum livro cadastrado"
+                    data_aluguel_formatada = "Nenhum livro alugado"
+                    data_devolucao_formatada = "Nenhum livro alugado"
                     status_entrega = "Nenhum livro alugado"
-                
 
                 # Adicionar rótulos e campos para os dados
                 tk.Label(dados_janela, text=f"Nome: {nome}").pack()
@@ -379,6 +390,7 @@ class BibliotecaGUI:
                 tk.Label(dados_janela, text=f"Data de Devolução: {data_devolucao_formatada}").pack()
                 tk.Label(dados_janela, text=f"Status da Entrega: {status_entrega}").pack()
 
+
             else:
                 messagebox.showinfo('Mensagem de Erro', 'CPF não encontrado. Por favor, insira um CPF existente.')
 
@@ -387,9 +399,65 @@ class BibliotecaGUI:
         self.pesquisar_cadastro_button.pack()
 
     def exibir_livros(self):
-        messagebox.showinfo("Exibição de Livros", "Coloque a exibição de livros aqui.")
-#---------------------------------------------------------------------------------------------------------------------------------------------
+        janela_livros = tk.Toplevel(self.root)
+        janela_livros.title("Lista de Livros")
+        #janela_livros.geometry(padx=10, pady=10)
+        
+        # tk.Label(janela_livros, text='Livros|Autor|Data de Publicação|Descrição').pack(padx=10,pady=10)
+        
+
+        consulta_livros = "SELECT * FROM livros"
+        self.cursor.execute(consulta_livros)
+        livros = self.cursor.fetchall()
+        # titulo = livros
+        # Criar a Treeview
+        tree = ttk.Treeview(janela_livros)
+        # Definir os estilos para cabeçalhos em negrito
+        estilo = ttk.Style()
+        estilo.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Definir as colunas
+        tree["columns"] = ("ID","Gênero","Título", "Autor", "Ano de Publicação", "Descrição")
+
+        # Configurar as colunas
+        tree.column("#0", width=0, stretch=tk.NO)  # Coluna invisível
+        tree.column("ID", anchor=tk.W, width=200)
+        tree.column("Gênero", anchor=tk.W, width=200)
+        tree.column("Título", anchor=tk.W, width=200)
+        tree.column("Autor", anchor=tk.W, width=200)
+        tree.column("Ano de Publicação", anchor=tk.W, width=200)
+        tree.column("Descrição", anchor=tk.W, width=500)
+        
+
+        # Configurar os cabeçalhos das colunas
+        tree.heading("#0", text="", anchor=tk.W)
+        tree.heading("ID", text="ID", anchor=tk.W)
+        tree.heading("Gênero", text="Gênero", anchor=tk.W)
+        tree.heading("Título", text="Título", anchor=tk.W)
+        tree.heading("Autor", text="Autor", anchor=tk.W)
+        tree.heading("Ano de Publicação", text="Ano de Publicação", anchor=tk.W)
+        tree.heading("Descrição", text="Descrição", anchor=tk.W)
+        for livro in livros:
+            # Verificar se a data é 'Varia' antes de tentar formatar
+            data_publicacao = livro[4]
+            if data_publicacao.lower() == 'varia':
+                data_formatada = data_publicacao
+            else:
+                try:
+                    data_formatada = datetime.strptime(data_publicacao, '%Y-%m-%d').strftime('%d-%m-%Y')
+                except ValueError:
+                    # Se a data não for válida, use o valor original
+                    data_formatada = data_publicacao
+            tree.insert("", tk.END, values=(livro[0], livro[1],livro[2], livro[3], data_formatada, livro[5]))
+
+        # Adicionar a Treeview à janela
+        tree.pack(padx=10, pady=10)
     
+
+
+
+
+
     def alugar_livro(self):
         aluguel_janela = tk.Toplevel(self.root)
         aluguel_janela.title("Aluguel de Livro")
@@ -517,9 +585,6 @@ class BibliotecaGUI:
         # Fechar a janela de detalhes
         janela_detalhes.destroy()
 
-
-        
-
     def devolver_livro(self): 
         # Criar uma nova janela
         janela_devolver = tk.Toplevel(self.root)
@@ -588,7 +653,7 @@ class BibliotecaGUI:
     def realizar_devolucao(self, janela_devolucao, cpf):
         try:
             # Atualiza o banco de dados para indicar que o livro foi devolvido (definir a coluna correspondente ao livro alugado como None)
-            update_query = "UPDATE cadastro SET livro_alugado = ', data_aluguel = NULL, data_devolucao = NULL WHERE cpf = ?"
+            update_query = "UPDATE cadastro SET livro_alugado = '', data_aluguel = NULL, data_devolucao = NULL WHERE cpf = ?"
             dados_para_atualizacao = (cpf,)
             self.cursor.execute(update_query, dados_para_atualizacao)
             self.conn.commit()
@@ -607,9 +672,56 @@ class BibliotecaGUI:
         # Pode não ser necessário fazer nada aqui, dependendo da lógica do seu programa
         janela_devolucao.destroy()
 
-
     def remover_cadastro(self):
-        messagebox.showinfo("Remoção de Cadastro", "Coloque a remoção de cadastro aqui.")
+        remover = tk.Tk()
+        self.remover = remover
+        self.remover.title("Remover Cadastro")
+        
+
+        self.cpf_label = tk.Label(self.remover, text="Insira o CPF a ser removido (no formato xxx.xxx.xxx-xx):")
+        self.cpf_label.pack()
+
+        self.cpf_var = tk.StringVar()
+        self.cpf_entry = tk.Entry(self.remover, textvariable=self.cpf_var)
+        self.cpf_entry.pack()
+        
+        def confirmar_remover_cadastro():
+            cpf = self.cpf_entry.get()
+                
+            def validar_cpf(cpf):
+                return len(cpf) == 14 and cpf[3] == '.' and cpf[7] == '.' and cpf[11] == '-'
+            
+            try:
+            
+                if validar_cpf(cpf):
+                    # Verificar se o CPF existe no banco de dados
+                    consulta_verificacao = "SELECT * FROM cadastro WHERE cpf = ?"
+                    self.cursor.execute(consulta_verificacao, (cpf,))
+                    resultado = self.cursor.fetchone()
+
+                    if resultado:
+                        # CPF encontrado, realizar a remoção
+                        consulta_remocao = "DELETE FROM cadastro WHERE cpf = ?"
+                        self.cursor.execute(consulta_remocao, (cpf,))
+                        self.conn.commit()
+                        messagebox.showinfo('Cadastro Removido', 'Cadastro removido com sucesso!')
+                    else:
+                        messagebox.showinfo('Mensagem de Aviso', 'CPF não encontrado. Insira um CPF válido.')
+            except Exception as ex:
+                messagebox.showerror('Erro', f'Erro inesperado: {str(ex)}')
+
+            finally:
+                # Fechar a conexão após a operação
+                self.fechar_conexao()
+            
+            # Fechar a janela de remoção após a operação
+            remover.destroy()
+
+        self.confirmar_button = tk.Button(remover, text="Confirmar", command=confirmar_remover_cadastro)
+        self.confirmar_button.pack()
+
+
+
 
 
 
